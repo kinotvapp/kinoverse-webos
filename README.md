@@ -16,9 +16,10 @@ reinstalarla para recibir mejoras**. Si un día no hay internet, usa la copia qu
 Esta app del TV **no funciona sola**: se conecta a Kino en tu celular Android, que es el que hace el trabajo. Primero instala
 Kino en el celular:
 
-**Descarga oficial del APK:** <https://apk.comparadorinternet.co>
+**Descarga oficial del APK (siempre la última versión):**
+<https://github.com/kinotvapp/kino-light/releases/latest/download/kino.apk>
 
-- **En el celular:** abre ese enlace, descarga el APK e instálalo.
+- **En el celular:** abre ese enlace, descarga el APK e instálalo. Es el APK universal: sirve en cualquier celular Android.
 - **En un TV Android o Fire TV, con la app Downloader:**
   - Principal: **7702264**
   - Respaldo: **7311825**
@@ -174,9 +175,10 @@ get updates**. With no internet, it uses the copy it carries.
 This TV app **does not work on its own**: it connects to Kino on your Android phone, which does the work. Install Kino on
 the phone first:
 
-**Official APK download:** <https://apk.comparadorinternet.co>
+**Official APK download (always the latest version):**
+<https://github.com/kinotvapp/kino-light/releases/latest/download/kino.apk>
 
-- **On the phone:** open that link, download the APK and install it.
+- **On the phone:** open that link, download the APK and install it. It is the universal APK: it works on any Android phone.
 - **On an Android TV or Fire TV, with the Downloader app:**
   - Main: **7702264**
   - Backup: **7311825**
