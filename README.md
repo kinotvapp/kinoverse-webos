@@ -11,6 +11,18 @@ reinstalarla para recibir mejoras**. Si un día no hay internet, usa la copia qu
 **Descarga el IPK:** [Releases ▸ la última](https://github.com/kinotvapp/kinoverse-webos/releases/latest)
 (`com.kinotvapp.kino_<versión>_all.ipk`).
 
+## Antes de empezar: necesitas Kino en tu celular
+
+Esta app del TV **no funciona sola**: se conecta a Kino en tu celular Android, que es el que hace el trabajo. Primero instala
+Kino en el celular:
+
+**Descarga oficial del APK:** <https://apk.comparadorinternet.co>
+
+- **En el celular:** abre ese enlace, descarga el APK e instálalo.
+- **En un TV Android o Fire TV, con la app Downloader:**
+  - Principal: **7702264**
+  - Respaldo: **7311825**
+
 ---
 
 ## Instálala en tu LG con el Developer Mode
@@ -156,6 +168,18 @@ The app is a shell: every time it opens, it loads the newest version from `kinov
 get updates**. With no internet, it uses the copy it carries.
 
 **Download the IPK:** [Releases ▸ latest](https://github.com/kinotvapp/kinoverse-webos/releases/latest).
+
+## Before you start: you need Kino on your phone
+
+This TV app **does not work on its own**: it connects to Kino on your Android phone, which does the work. Install Kino on
+the phone first:
+
+**Official APK download:** <https://apk.comparadorinternet.co>
+
+- **On the phone:** open that link, download the APK and install it.
+- **On an Android TV or Fire TV, with the Downloader app:**
+  - Main: **7702264**
+  - Backup: **7311825**
 
 ## Install it on your LG with Developer Mode
 
