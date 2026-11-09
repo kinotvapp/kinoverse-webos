@@ -76,10 +76,10 @@ ares-device -i -d lg
 2. En la terminal, ve a la carpeta donde quedó (por ejemplo, `cd Downloads`) e instálalo:
 
    ```bash
-   ares-install --device lg com.kinotvapp.kino_0.2.0_all.ipk
+   ares-install --device lg com.kinotvapp.kino_0.2.1_all.ipk
    ```
 
-3. Ábrela desde el computador, o búscala en el TV con el nombre **Kino**:
+3. Ábrela desde el computador, o búscala en el TV con el nombre **kinoverse**:
 
    ```bash
    ares-launch --device lg com.kinotvapp.kino
@@ -128,7 +128,8 @@ Qué hay en cada carpeta:
 - `web/`: el cliente web de Kino, el mismo que sirven el celular y `kinoverse.app/tv`.
 - `shell/`: la página que lleva la app instalada. Carga el programa de `https://kinoverse.app/tv/webos/` y, si no lo logra
   en 8 segundos, usa la copia local (`?local=1`).
-- `app/appinfo.json`: el id (`com.kinotvapp.kino`) y la versión.
+- `app/appinfo.json`: el id (`com.kinotvapp.kino`), el nombre (kinoverse) y la versión.
+- `brand/logo.svg`: el logo de kinoverse que muestra la app (la página del celular sigue con el de Kino).
 - `build/remote/`: lo que se publica en `kinoverse.app/tv/webos/`.
 
 Opciones: `--web=<carpeta>` usa otra copia del cliente web, y `--device=<nombre>` otro TV.
@@ -187,7 +188,7 @@ You need:
 4. **Install and open:**
 
    ```bash
-   ares-install --device lg com.kinotvapp.kino_0.2.0_all.ipk
+   ares-install --device lg com.kinotvapp.kino_0.2.1_all.ipk
    ares-launch --device lg com.kinotvapp.kino
    ```
 

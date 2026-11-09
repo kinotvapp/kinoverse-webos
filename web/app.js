@@ -22,9 +22,10 @@ import { askOf, cardMetrics, creditsOf, titleCardOf, factsOf, dateText, homeMode
 import { LIBRARY_SECTIONS, categorySectionsOf, collectionCardOf, libraryCardOf, libraryGroupsOf, librarySectionTabs, pluginCatalogsOf } from './catalogs.js';
 import { DEVICES, deviceEnvOf, detectDevice, readDevicePref, resolveDevice, saveDevicePref } from './device.js';
 import { clear, h } from './dom.js';
-import { CODE_SERVICE, isPairCode, pairTargetOf, forgetProfile as dropStoredProfile, forgetToken as dropStoredToken, loadProfile, saveProfile, takeToken, phoneBase, phonePageInstead } from './token.js';
+import { CODE_SERVICE, isPairCode, pairTargetOf, forgetProfile as dropStoredProfile, forgetToken as dropStoredToken, loadProfile, saveProfile, takeToken, phoneBase, phonePageInstead, localNetworkAsk } from './token.js';
 
 const HINT_MS = 5000; // hosted mode: after this long without an answer, explain the browser's permission
+const ASK_MS = 500; // Chrome on kinoverse.app: after this long without an answer, point at its local-network question
 const POLL_MS = 3000; // Home answers `settled: false` while plugins are still loading: ask again, cheaply
 const POLL_MAX = 10;
 const HERO_ASK_MS = 250; // the TV rests on a card this long before TMDB is asked (HERO_ASK_DELAY_MS)
@@ -321,7 +322,18 @@ export function startApp(win) {
     const screen = messageScreen(S.loading, null, null, [], null);
     show(screen);
     // Hosted mode: while the browser waits for the person to answer its local-network permission the page just hangs; say what is going on.
-    if (hostedBase) {
+    if (lnaAsk) {
+      // A moment's wait first: when the phone answers at once (the permission was given before) the pointer never flashes.
+      win.setTimeout(() => {
+        if (!screen.el.parentNode) return;
+        // Only while Chrome is asking: given before, nothing to answer; refused before, the phone's error screen says how to undo it.
+        localNetworkState().then((state) => {
+          if ((state === 'prompt' || state === 'unknown') && screen.el.parentNode) {
+            placePointer(screen.el, lnaAsk === 'arrow' ? S.localNetworkArrow : S.localNetworkPhone);
+          }
+        });
+      }, ASK_MS);
+    } else if (hostedBase) {
       win.setTimeout(() => {
         if (screen.el.parentNode) screen.el.appendChild(h('p', { class: 'note' }, S.localNetworkHint));
       }, HINT_MS);
@@ -331,6 +343,52 @@ export function startApp(win) {
   /** Hosted mode only: the phone's own page, which always works (same origin, no browser permission). */
   function openOnPhone() {
     win.location.href = hostedBase + '/' + (token ? '?t=' + encodeURIComponent(token) : '');
+  }
+
+  /**
+   * For whoever lands here with no code yet (owner, 2026-11-09): get the app (a QR to the download), open ⋮ → Send to the TV, turn on the
+   * proxy and copy the 5 numbers. The screenshots are the phone's, in Kino's own dark theme, in the page's language.
+   */
+  function pairSteps() {
+    const en = lang === 'en' ? '-en' : '';
+    const step = (n, title, body, img) => h('li', { class: 'pair-step' }, [
+      h('div', { class: 'pair-step-head' }, [h('span', { class: 'pair-step-num' }, String(n)), h('h4', null, title)]),
+      h('p', null, body),
+      img,
+    ]);
+    return h('section', { class: 'pair-steps' }, [
+      h('h3', null, S.pairStepsTitle),
+      h('ol', { class: 'pair-grid' }, [
+        step(1, S.pairStep1Title, S.pairStep1Body, h('img', { class: 'pair-shot pair-qr', src: 'pair-qr.svg', alt: S.pairStep1Alt })),
+        step(2, S.pairStep2Title, S.pairStep2Body, h('img', { class: 'pair-shot', src: 'pair-menu' + en + '.webp', alt: S.pairStep2Alt })),
+        step(3, S.pairStep3Title, S.pairStep3Body, h('img', { class: 'pair-shot', src: 'pair-code' + en + '.webp', alt: S.pairStep3Alt })),
+      ]),
+      h('p', { class: 'pair-wifi' }, S.pairSameWifi),
+    ]);
+  }
+
+  /**
+   * Chrome asks once whether this page may reach the home network; until the person answers, the phone's first answer just waits.
+   * A computer gets an arrow at the address bar, where the question hangs; a phone gets the words alone.
+   */
+  function localNetworkPointer(kind, text) {
+    return h('div', { class: 'lna-hint lna-kind-' + kind, role: 'status' }, [
+      kind === 'arrow' ? h('img', { class: 'lna-arrow', src: 'lna-arrow.svg', alt: '' }) : null,
+      h('p', { class: 'lna-text' }, text),
+    ]);
+  }
+
+  /** The arrow goes first on the screen, under the address bar it points at, and pushes the rest down; the words alone go last. */
+  function placePointer(el, text) {
+    const pointer = localNetworkPointer(lnaAsk, text);
+    if (lnaAsk === 'arrow') el.insertBefore(pointer, el.firstChild); else el.appendChild(pointer);
+  }
+
+  /** Chrome's local-network permission: 'granted', 'denied', 'prompt' (it will ask), or 'unknown' (a Chrome that cannot tell). */
+  function localNetworkState() {
+    try {
+      return win.navigator.permissions.query({ name: 'local-network-access' }).then((s) => s.state, () => 'unknown');
+    } catch (e) { return Promise.resolve('unknown'); }
   }
 
   /**
@@ -353,7 +411,7 @@ export function startApp(win) {
       form,
       h('div', { class: 'actions' }, [go]),
       note,
-      h('p', { class: 'pair-help' }, S.pairCodeHelp),
+      pairSteps(),
     ]);
     let busy = false;
     async function submit() {
@@ -383,7 +441,10 @@ export function startApp(win) {
     if (code === 'profile_unknown' || code === 'profile_required') { forgetProfile(); showProfiles(errorText(err, S)); return; }
     if (hostedBase && code === 'network') {
       const denied = [button(S.retry, retry), button(S.openOnPhone, openOnPhone)];
-      show(messageScreen(S.localNetworkDenied, null, null, denied, back));
+      const screen = messageScreen(S.localNetworkDenied, null, null, denied, back);
+      // Refused in Chrome: the arrow points at the icon left of the address, where the permission is given back.
+      if (lnaAsk) placePointer(screen.el, S.localNetworkUnblock);
+      show(screen);
       return;
     }
     const detail = err && err.needsPhone && err.message ? err.message : null;
@@ -396,6 +457,7 @@ export function startApp(win) {
 
   const storage = storageOf(win);
   const hostedBase = phoneBase(win.location); // '' when the phone itself served this page
+  const lnaAsk = localNetworkAsk(win.location.href, hostedBase, win.navigator); // 'arrow' | 'text' | null: Chrome's local-network question
   let token = null; // kept here too: with storage blocked, a retry must not lose the token the address gave
   function forgetToken() { token = null; dropStoredToken(storage); api = null; }
   function forgetProfile() { profile = null; dropStoredProfile(storage); if (api) api.setProfile(null); }

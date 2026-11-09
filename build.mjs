@@ -57,6 +57,13 @@ if (!/Content-Security-Policy/.test(page)) throw new Error('index.html has no Co
 const packaged = page.replace(moduleTag, '<script src="app.js" defer></script>').replace(/'self'/g, "'self' file:");
 fs.writeFileSync(path.join(out, 'index.html'), packaged);
 
+// 4a. The LG app is kinoverse: its wordmark (brand/logo.svg), and its name where the page names itself. The phone's own page keeps Kino's.
+fs.copyFileSync(path.join(here, 'brand', 'logo.svg'), path.join(out, 'logo.svg'));
+const bundle = path.join(out, 'app.js');
+const named = fs.readFileSync(bundle, 'utf8').replace(/appName: (['"])Kino\1/g, 'appName: $1kinoverse$1');
+if (!/appName: (['"])kinoverse\1/.test(named)) throw new Error('app.js no longer names the app as appName: "Kino": update build.mjs');
+fs.writeFileSync(bundle, named);
+
 // 4b. What kinoverse.app serves at /tv/webos/: the same program the app carries (everything but the app's descriptor, icons and page).
 // The installed app loads it from there each time it opens, so a new version reaches every TV with no reinstall.
 const remote = path.join(here, 'build', 'remote');

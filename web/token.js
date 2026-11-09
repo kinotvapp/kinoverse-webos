@@ -103,6 +103,22 @@ export function phonePageInstead(pageHref, base, token, navigator) {
   return base.replace(/\/+$/, '') + '/?t=' + encodeURIComponent(token);
 }
 
+/**
+ * Whether Chrome will ask the person about the local network while this page first reaches the phone, and how to point at that question:
+ * 'arrow' on a computer (Chrome hangs it under the address bar, top left), 'text' on a phone (no fixed place to point at), null where no
+ * question comes: another browser (it cannot reach the phone at all, see [phonePageInstead]), a phone on https, a page that is not on
+ * https (the phone's own page, the LG app's local file, the TV box app's WebView, which asks nothing).
+ */
+export function localNetworkAsk(pageHref, base, navigator) {
+  if (!base || !/^http:\/\//i.test(base)) return null;
+  let page;
+  try { page = new URL(String(pageHref)); } catch (e) { return null; }
+  if (page.protocol !== 'https:' || !reachesLocalHttp(navigator)) return null;
+  const ua = navigator && typeof navigator.userAgent === 'string' ? navigator.userAgent : '';
+  if (/; wv\)/.test(ua)) return null;
+  return /Android|Mobile/i.test(ua) ? 'text' : 'arrow';
+}
+
 /** The phone refused the token (401): drop it, and the profile chosen with it. */
 export function forgetToken(storage) {
   remove(storage, TOKEN_KEY);
