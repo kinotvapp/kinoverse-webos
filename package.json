@@ -1,0 +1,12 @@
+{
+  "name": "kinoverse-webos",
+  "private": true,
+  "description": "kinoverse (Kino) for LG webOS: the installable app (see README.md).",
+  "scripts": {
+    "build": "node build.mjs",
+    "package": "node build.mjs --package"
+  },
+  "devDependencies": {
+    "esbuild": "0.21.5"
+  }
+}

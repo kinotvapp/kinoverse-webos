@@ -1,0 +1,15 @@
+{
+  "id": "com.kinotvapp.kino",
+  "version": "0.2.0",
+  "vendor": "Kino",
+  "type": "web",
+  "main": "index.html",
+  "title": "Kino",
+  "icon": "icon80.png",
+  "largeIcon": "icon130.png",
+  "bgColor": "#0E0E0E",
+  "disallowScrollingInMainWindow": true,
+  "disableBackHistoryAPI": true,
+  "requiredPermissions": [],
+  "requiredACG": []
+}
